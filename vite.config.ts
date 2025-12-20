@@ -11,6 +11,7 @@ export default defineConfig({
         // target: 'http://localhost:3001',
         target: 'https://alan6667-backend-navigation-website.hf.space',
         changeOrigin: true,
+        secure: false,
       }
     }
   },
