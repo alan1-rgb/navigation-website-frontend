@@ -8,8 +8,8 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        // target: 'http://localhost:3001',
-        target: 'https://alan6667-backend-navigation-website.hf.space',
+        target: 'http://localhost:3001',
+        // target: 'https://alan6667-backend-navigation-website.hf.space',
         changeOrigin: true,
         secure: false,
       }
