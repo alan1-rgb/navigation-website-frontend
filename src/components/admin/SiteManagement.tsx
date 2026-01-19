@@ -5,9 +5,17 @@ import { sitesAPI } from '../../services/api';
 import LoadingSpinner from '../LoadingSpinner';
 import { getFaviconUrl, handleFaviconError } from '../../utils/favicon';
 import toast from 'react-hot-toast';
+import EditSiteModal from './EditSiteModal';
+import { Site, Category } from '../../types';
 
-export default function SiteManagement() {
+interface SiteManagementProps {
+  categories: Category[];
+}
+
+export default function SiteManagement({ categories }: SiteManagementProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingSite, setEditingSite] = useState<Site | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery(
@@ -30,6 +38,16 @@ export default function SiteManagement() {
     if (window.confirm(`确定要删除 "${title}" 吗？`)) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleEdit = (site: Site) => {
+    setEditingSite(site);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingSite(null);
   };
 
   if (isLoading) {
@@ -119,6 +137,7 @@ export default function SiteManagement() {
                       <ExternalLink className="w-4 h-4" />
                     </button>
                     <button
+                      onClick={() => handleEdit(site)}
                       className="text-blue-600 dark:text-purple-400 hover:text-blue-900 dark:hover:text-purple-300 transition-colors duration-200"
                       title="编辑"
                     >
@@ -144,7 +163,7 @@ export default function SiteManagement() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            显示 {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} 
+            显示 {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)}
             {' '}/ {pagination.total} 个结果
           </div>
           <div className="flex space-x-2">
@@ -165,6 +184,14 @@ export default function SiteManagement() {
           </div>
         </div>
       )}
+
+      {/* Edit Site Modal */}
+      <EditSiteModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        categories={categories}
+        site={editingSite}
+      />
     </div>
   );
 } 
