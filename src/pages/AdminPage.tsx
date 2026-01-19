@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { Settings, BarChart3 } from 'lucide-react';
+import { Plus, Settings, BarChart3 } from 'lucide-react';
 import { sitesAPI, categoriesAPI } from '../services/api';
 import SiteManagement from '../components/admin/SiteManagement';
 import CategoryManagement from '../components/admin/CategoryManagement';
 import Analytics from '../components/admin/Analytics';
+import AddSiteModal from '../components/admin/AddSiteModal';
 
 type TabType = 'sites' | 'categories' | 'analytics';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('sites');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Fetch data for overview
   const { data: sitesData } = useQuery('admin-sites', () => 
@@ -49,9 +51,18 @@ export default function AdminPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-200">管理后台</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1 transition-colors duration-200">管理网站内容和分类</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-200">管理后台</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1 transition-colors duration-200">管理网站内容和分类</p>
+          </div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn-primary flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>添加网站</span>
+          </button>
         </div>
       </div>
 
@@ -132,6 +143,15 @@ export default function AdminPage() {
           {activeTab === 'analytics' && <Analytics />}
         </div>
       </div>
+
+      {/* Add Site Modal */}
+      {showAddModal && (
+        <AddSiteModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          categories={categories}
+        />
+      )}
     </div>
   );
 } 
