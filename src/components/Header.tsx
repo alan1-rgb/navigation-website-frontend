@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Plus } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
@@ -43,23 +43,19 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             >
               首页
             </Link>
-            <Link 
-              to="/admin" 
+            <Link
+              to="/admin"
               className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             >
               管理
             </Link>
             <ThemeToggle />
-            <button className="btn-primary flex items-center space-x-1">
-              <Plus className="w-4 h-4" />
-              <span>添加网站</span>
-            </button>
           </nav>
 
           {/* Mobile menu button */}
@@ -78,24 +74,20 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-dark-700">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-purple-400 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 首页
               </Link>
-              <Link 
-                to="/admin" 
+              <Link
+                to="/admin"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-purple-400 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 管理
               </Link>
-              <button className="w-full text-left btn-primary mt-2 flex items-center space-x-1">
-                <Plus className="w-4 h-4" />
-                <span>添加网站</span>
-              </button>
             </div>
           </div>
         )}
