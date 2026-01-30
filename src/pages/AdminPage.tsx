@@ -13,13 +13,19 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('sites');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Fetch data for overview
-  const { data: sitesData } = useQuery('admin-sites', () => 
-    sitesAPI.getAll({ limit: 100 })
+  // Fetch data for overview - 使用不同的 query key 避免冲突
+  const { data: sitesData } = useQuery('admin-overview-sites', () =>
+    sitesAPI.getAll({ limit: 100 }),
+    {
+      staleTime: 5 * 60 * 1000, // 缓存 5 分钟
+    }
   );
-  
-  const { data: categoriesData } = useQuery('admin-categories', () => 
-    categoriesAPI.getAllWithCount()
+
+  const { data: categoriesData } = useQuery('admin-categories', () =>
+    categoriesAPI.getAllWithCount(),
+    {
+      staleTime: 5 * 60 * 1000, // 缓存 5 分钟
+    }
   );
 
   const sites = sitesData?.data || [];
@@ -138,7 +144,7 @@ export default function AdminPage() {
 
         {/* Tab Content */}
         <div className="p-6">
-          {activeTab === 'sites' && <SiteManagement categories={categories} />}
+          {activeTab === 'sites' && <SiteManagement />}
           {activeTab === 'categories' && <CategoryManagement />}
           {activeTab === 'analytics' && <Analytics />}
         </div>

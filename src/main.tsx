@@ -14,8 +14,8 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
-      // Prevent initial loading state flash
-      refetchOnMount: false,
+      // 允许在挂载时重新获取过期数据
+      refetchOnMount: 'stale',
       // Keep previous data during refetch to prevent UI jumps
       keepPreviousData: true,
     },
