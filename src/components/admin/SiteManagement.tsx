@@ -185,21 +185,102 @@ export default function SiteManagement() {
       {!searchQuery && pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            显示 {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} 
+            显示 {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)}
             {' '}/ {pagination.total} 个结果
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={pagination.page === 1}
-              className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 disabled:opacity-50 transition-colors duration-200"
+              className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               上一页
             </button>
+
+            {/* Page Numbers */}
+            <div className="flex space-x-1">
+              {(() => {
+                const pages = [];
+                const totalPages = pagination.totalPages;
+                const currentPage = pagination.page;
+
+                // 始终显示第一页
+                if (totalPages > 0) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => setCurrentPage(1)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                        currentPage === 1
+                          ? 'bg-primary-600 dark:bg-purple-600 text-white'
+                          : 'border border-gray-300 dark:border-dark-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700'
+                      }`}
+                    >
+                      1
+                    </button>
+                  );
+                }
+
+                // 显示省略号
+                if (currentPage > 3) {
+                  pages.push(
+                    <span key="ellipsis-start" className="px-2 py-2 text-gray-500 dark:text-gray-400">
+                      ...
+                    </span>
+                  );
+                }
+
+                // 显示当前页附近的页码
+                for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                        currentPage === i
+                          ? 'bg-primary-600 dark:bg-purple-600 text-white'
+                          : 'border border-gray-300 dark:border-dark-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+
+                // 显示省略号
+                if (currentPage < totalPages - 2) {
+                  pages.push(
+                    <span key="ellipsis-end" className="px-2 py-2 text-gray-500 dark:text-gray-400">
+                      ...
+                    </span>
+                  );
+                }
+
+                // 始终显示最后一页
+                if (totalPages > 1) {
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                        currentPage === totalPages
+                          ? 'bg-primary-600 dark:bg-purple-600 text-white'
+                          : 'border border-gray-300 dark:border-dark-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700'
+                      }`}
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+
+                return pages;
+              })()}
+            </div>
+
             <button
               onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
               disabled={pagination.page === pagination.totalPages}
-              className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 disabled:opacity-50 transition-colors duration-200"
+              className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               下一页
             </button>
