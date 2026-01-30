@@ -14,15 +14,19 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const api = axios.create({
   // baseURL: '/api',
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // 增加到 30 秒，适应 Hugging Face 冷启动
 });
 
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.error || error.message || '请求失败';
-    toast.error(message);
+    if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {
+      toast.error('请求超时，服务器可能正在启动中，请稍后重试');
+    } else {
+      const message = error.response?.data?.error || error.message || '请求失败';
+      toast.error(message);
+    }
     return Promise.reject(error);
   }
 );
