@@ -19,7 +19,11 @@ export default function SiteCard({ site }: SiteCardProps) {
   };
 
   return (
-    <div className="card group cursor-pointer" onClick={handleClick}>
+    <div
+      className="card group cursor-pointer"
+      onClick={handleClick}
+      title={site.url}
+    >
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
