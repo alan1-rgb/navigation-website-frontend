@@ -5,8 +5,13 @@ import { sitesAPI } from '../../services/api';
 import LoadingSpinner from '../LoadingSpinner';
 import { getFaviconUrl, handleFaviconError } from '../../utils/favicon';
 import toast from 'react-hot-toast';
+import { Site } from '../../types';
 
-export default function SiteManagement() {
+interface SiteManagementProps {
+  onEdit: (site: Site) => void;
+}
+
+export default function SiteManagement({ onEdit }: SiteManagementProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
@@ -160,6 +165,7 @@ export default function SiteManagement() {
                       <ExternalLink className="w-4 h-4" />
                     </button>
                     <button
+                      onClick={() => onEdit(site)}
                       className="text-blue-600 dark:text-purple-400 hover:text-blue-900 dark:hover:text-purple-300 transition-colors duration-200"
                       title="编辑"
                     >

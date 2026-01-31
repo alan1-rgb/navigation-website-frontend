@@ -1,22 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { X, Plus } from 'lucide-react';
 import { sitesAPI } from '../../services/api';
-import { Category } from '../../types';
+import { Category, Site } from '../../types';
 import toast from 'react-hot-toast';
 
 interface AddSiteModalProps {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
+  editingSite?: Site | null;
 }
 
-export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteModalProps) {
+export default function AddSiteModal({ isOpen, onClose, categories, editingSite }: AddSiteModalProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
   const queryClient = useQueryClient();
+  const isEditMode = !!editingSite;
 
-  const mutation = useMutation(sitesAPI.create, {
+  // 当编辑网站时，初始化表单数据
+  useEffect(() => {
+    if (editingSite) {
+      setTags(editingSite.tags || []);
+    } else {
+      setTags([]);
+    }
+  }, [editingSite]);
+
+  const createMutation = useMutation(sitesAPI.create, {
     onSuccess: () => {
       queryClient.invalidateQueries(['sites']);
       queryClient.invalidateQueries(['admin-sites']);
@@ -28,10 +39,25 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
     }
   });
 
+  const updateMutation = useMutation(
+    ({ id, data }: { id: number; data: any }) => sitesAPI.update(id, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['sites']);
+        queryClient.invalidateQueries(['admin-sites']);
+        toast.success('网站更新成功');
+        onClose();
+      },
+      onError: () => {
+        toast.error('更新失败');
+      }
+    }
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const data = {
       title: formData.get('title') as string,
       url: formData.get('url') as string,
@@ -40,7 +66,11 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
       tags: tags
     };
 
-    mutation.mutate(data);
+    if (isEditMode && editingSite) {
+      updateMutation.mutate({ id: editingSite.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
   const addTag = () => {
@@ -60,7 +90,9 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-dark-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto border border-transparent dark:border-dark-700 transition-colors duration-200">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">添加新网站</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">
+            {isEditMode ? '编辑网站' : '添加新网站'}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
@@ -78,6 +110,7 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
               type="text"
               name="title"
               required
+              defaultValue={editingSite?.title || ''}
               className="input"
               placeholder="输入网站名称"
             />
@@ -91,6 +124,7 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
               type="url"
               name="url"
               required
+              defaultValue={editingSite?.url || ''}
               className="input"
               placeholder="https://example.com"
             />
@@ -103,6 +137,7 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
             <textarea
               name="description"
               rows={3}
+              defaultValue={editingSite?.description || ''}
               className="input resize-none"
               placeholder="简要描述这个网站..."
             />
@@ -112,7 +147,7 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-200">
               分类
             </label>
-            <select name="category_id" className="input">
+            <select name="category_id" defaultValue={editingSite?.category_id || ''} className="input">
               <option value="">选择分类</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
@@ -166,10 +201,12 @@ export default function AddSiteModal({ isOpen, onClose, categories }: AddSiteMod
           <div className="flex space-x-3 pt-4">
             <button
               type="submit"
-              disabled={mutation.isLoading}
+              disabled={createMutation.isLoading || updateMutation.isLoading}
               className="btn-primary flex-1"
             >
-              {mutation.isLoading ? '添加中...' : '添加网站'}
+              {createMutation.isLoading || updateMutation.isLoading
+                ? (isEditMode ? '更新中...' : '添加中...')
+                : (isEditMode ? '更新网站' : '添加网站')}
             </button>
             <button
               type="button"

@@ -6,12 +6,14 @@ import SiteManagement from '../components/admin/SiteManagement';
 import CategoryManagement from '../components/admin/CategoryManagement';
 import Analytics from '../components/admin/Analytics';
 import AddSiteModal from '../components/admin/AddSiteModal';
+import { Site } from '../types';
 
 type TabType = 'sites' | 'categories' | 'analytics';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('sites');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingSite, setEditingSite] = useState<Site | null>(null);
 
   // Fetch data for overview - 使用不同的 query key 避免冲突
   const { data: sitesData } = useQuery('admin-overview-sites', () =>
@@ -52,6 +54,16 @@ export default function AdminPage() {
       icon: BarChart3
     }
   ];
+
+  const handleEditSite = (site: Site) => {
+    setEditingSite(site);
+    setShowAddModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setEditingSite(null);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -144,7 +156,7 @@ export default function AdminPage() {
 
         {/* Tab Content */}
         <div className="p-6">
-          {activeTab === 'sites' && <SiteManagement />}
+          {activeTab === 'sites' && <SiteManagement onEdit={handleEditSite} />}
           {activeTab === 'categories' && <CategoryManagement />}
           {activeTab === 'analytics' && <Analytics />}
         </div>
@@ -154,8 +166,9 @@ export default function AdminPage() {
       {showAddModal && (
         <AddSiteModal
           isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
+          onClose={handleCloseModal}
           categories={categories}
+          editingSite={editingSite}
         />
       )}
     </div>
