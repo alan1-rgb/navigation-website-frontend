@@ -8,6 +8,8 @@ interface SiteCardProps {
 }
 
 export default function SiteCard({ site }: SiteCardProps) {
+  const displayUrl = site.url.replace(/^https?:\/\//, '');
+
   const handleClick = async () => {
     const url = site.url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) return;
@@ -20,7 +22,14 @@ export default function SiteCard({ site }: SiteCardProps) {
   };
 
   return (
-    <div className="card group cursor-pointer" onClick={handleClick}>
+    <div className="card group relative cursor-pointer" onClick={handleClick}>
+      <div className="pointer-events-none absolute left-4 right-4 -top-3 z-10 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:-translate-y-0.5 transition-all duration-200">
+        <div className="inline-flex max-w-full items-center rounded-md bg-gray-900/95 px-2 py-1 text-xs text-white shadow-lg">
+          <ExternalLink className="mr-1 h-3 w-3 flex-shrink-0" />
+          <span className="truncate" title={site.url}>{displayUrl}</span>
+        </div>
+      </div>
+
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
