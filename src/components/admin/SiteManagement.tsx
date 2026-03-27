@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { Edit, Trash2, ExternalLink, Eye, Search } from 'lucide-react';
 import { sitesAPI } from '../../services/api';
@@ -16,9 +16,15 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
+  const trimmedSearch = searchQuery.trim();
+
   const { data, isLoading, error } = useQuery(
-    ['admin-sites', currentPage],
-    () => sitesAPI.getAll({ page: currentPage, limit: 10 }),
+    ['admin-sites', currentPage, trimmedSearch],
+    () => sitesAPI.getAll({
+      page: currentPage,
+      limit: 10,
+      keyword: trimmedSearch || undefined
+    }),
     { keepPreviousData: true }
   );
 
@@ -38,20 +44,9 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
     }
   };
 
-  // 客户端搜索过滤
-  const filteredSites = useMemo(() => {
-    const sites = data?.data || [];
-    if (!searchQuery.trim()) {
-      return sites;
-    }
-    const query = searchQuery.toLowerCase();
-    return sites.filter(site =>
-      site.title.toLowerCase().includes(query) ||
-      site.description?.toLowerCase().includes(query) ||
-      site.url.toLowerCase().includes(query) ||
-      site.category_name?.toLowerCase().includes(query)
-    );
-  }, [data?.data, searchQuery]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [trimmedSearch]);
 
   if (isLoading) {
     return (
@@ -69,7 +64,9 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
       );
     }
 
+  const sites = data?.data || [];
   const pagination = data?.pagination;
+  const totalResults = pagination?.total ?? sites.length;
 
   return (
     <div>
@@ -79,15 +76,15 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
           <input
             type="text"
-            placeholder="搜索网站标题、描述、URL或分类..."
+            placeholder="搜索网站标题、描述、URL、分类或标签..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-purple-500 focus:border-transparent transition-colors duration-200"
           />
         </div>
-        {searchQuery && (
+        {trimmedSearch && (
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            找到 {filteredSites.length} 个结果
+            找到 {totalResults} 个结果
           </p>
         )}
       </div>
@@ -114,14 +111,14 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-700">
-            {filteredSites.length === 0 ? (
+            {sites.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                  {searchQuery ? '没有找到匹配的网站' : '暂无网站数据'}
+                  {trimmedSearch ? '没有找到匹配的网站' : '暂无网站数据'}
                 </td>
               </tr>
             ) : (
-              filteredSites.map((site) => (
+              sites.map((site) => (
               <tr key={site.id} className="hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-200">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -187,8 +184,8 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
         </table>
       </div>
 
-      {/* Pagination - 搜索时隐藏 */}
-      {!searchQuery && pagination && pagination.totalPages > 1 && (
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-700 dark:text-gray-300">
             显示 {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)}
