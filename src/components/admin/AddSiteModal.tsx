@@ -183,7 +183,7 @@ export default function AddSiteModal({ isOpen, onClose, categories, editingSite 
                 type="text"
                 value={currentTag}
                 onChange={(e) => setCurrentTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                 className="input flex-1"
                 placeholder="输入标签后按回车"
               />

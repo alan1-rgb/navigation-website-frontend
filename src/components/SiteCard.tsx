@@ -9,21 +9,18 @@ interface SiteCardProps {
 
 export default function SiteCard({ site }: SiteCardProps) {
   const handleClick = async () => {
+    const url = site.url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) return;
     try {
       await sitesAPI.incrementClick(site.id);
-      window.open(site.url, '_blank', 'noopener,noreferrer');
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (error) {
-      // Still open the link even if click tracking fails
-      window.open(site.url, '_blank', 'noopener,noreferrer');
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
-    <div
-      className="card group cursor-pointer"
-      onClick={handleClick}
-      title={site.url}
-    >
+    <div className="card group cursor-pointer" onClick={handleClick}>
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">

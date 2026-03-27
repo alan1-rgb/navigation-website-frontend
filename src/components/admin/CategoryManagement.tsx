@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { categoriesAPI } from '../../services/api';
+import { Category } from '../../types';
 import LoadingSpinner from '../LoadingSpinner';
 import toast from 'react-hot-toast';
 
 export default function CategoryManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery(
@@ -27,7 +28,7 @@ export default function CategoryManagement() {
   });
 
   const updateMutation = useMutation(
-    ({ id, data }: { id: number; data: any }) => categoriesAPI.update(id, data),
+    ({ id, data }: { id: number; data: Partial<Omit<Category, 'id'>> }) => categoriesAPI.update(id, data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-categories');
@@ -80,13 +81,13 @@ export default function CategoryManagement() {
     );
   }
 
-      if (error) {
-      return (
-        <div className="text-center py-8 text-red-600 dark:text-red-400">
-          加载失败，请重试
-        </div>
-      );
-    }
+  if (error) {
+    return (
+      <div className="text-center py-8 text-red-600 dark:text-red-400">
+        加载失败，请重试
+      </div>
+    );
+  }
 
   const categories = data?.data || [];
 
@@ -177,7 +178,7 @@ export default function CategoryManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-dark-700">
-            {categories.map((category: any) => (
+            {categories.map((category: Category) => (
               <tr key={category.id} className="hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-200">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
