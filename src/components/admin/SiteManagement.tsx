@@ -14,9 +14,14 @@ interface SiteManagementProps {
 export default function SiteManagement({ onEdit }: SiteManagementProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const queryClient = useQueryClient();
 
   const trimmedSearch = searchQuery.trim();
+
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
 
   const { data, isLoading, error } = useQuery(
     ['admin-sites', currentPage, trimmedSearch],
@@ -72,19 +77,33 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
     <div>
       {/* 搜索框 */}
       <div className="mb-4">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
+        <div className="flex items-center gap-2 max-w-md">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
           <input
             type="text"
-            placeholder="搜索网站标题、描述、URL、分类或标签..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="搜索网站标题、描述或标签..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setSearchQuery(inputValue.trim());
+              }
+            }}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-purple-500 focus:border-transparent transition-colors duration-200"
           />
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchQuery(inputValue.trim())}
+            className="px-4 py-2 bg-primary-600 dark:bg-purple-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-purple-700 transition-colors duration-200"
+          >
+            搜索
+          </button>
         </div>
         {trimmedSearch && (
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            找到 {totalResults} 个结果
+            找到 {totalResults} 个结果（按标题、描述或标签匹配）
           </p>
         )}
       </div>
