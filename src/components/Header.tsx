@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Plus } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
@@ -56,10 +56,6 @@ export default function Header() {
               管理
             </Link>
             <ThemeToggle />
-            <Link to="/admin" className="btn-primary flex items-center space-x-1">
-              <Plus className="w-4 h-4" />
-              <span>添加网站</span>
-            </Link>
           </nav>
 
           {/* Mobile menu button */}
@@ -91,10 +87,6 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 管理
-              </Link>
-              <Link to="/admin" className="w-full text-left btn-primary mt-2 flex items-center space-x-1">
-                <Plus className="w-4 h-4" />
-                <span>添加网站</span>
               </Link>
             </div>
           </div>
