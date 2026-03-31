@@ -10,15 +10,27 @@ interface SiteCardProps {
 export default function SiteCard({ site }: SiteCardProps) {
   const displayUrl = site.url.replace(/^https?:\/\//, '');
 
-  const handleClick = async () => {
+  const openInNewTabAndKeepCurrent = (url: string) => {
+    const newTab = window.open('about:blank', '_blank');
+    if (!newTab) return false;
+
+    newTab.opener = null;
+    newTab.location.replace(url);
+    newTab.blur();
+    window.focus();
+    return true;
+  };
+
+  const handleClick = () => {
     const url = site.url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) return;
-    try {
-      await sitesAPI.incrementClick(site.id);
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } catch (error) {
+
+    const opened = openInNewTabAndKeepCurrent(url);
+    if (!opened) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
+
+    void sitesAPI.incrementClick(site.id).catch(() => undefined);
   };
 
   return (
