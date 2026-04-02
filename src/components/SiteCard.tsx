@@ -9,32 +9,15 @@ interface SiteCardProps {
 
 export default function SiteCard({ site }: SiteCardProps) {
   const displayUrl = site.url.replace(/^https?:\/\//, '');
+  const isValidExternalUrl = site.url.startsWith('http://') || site.url.startsWith('https://');
 
-  const openInNewTabAndKeepCurrent = (url: string) => {
-    const newTab = window.open('about:blank', '_blank');
-    if (!newTab) return false;
-
-    newTab.opener = null;
-    newTab.location.replace(url);
-    newTab.blur();
-    window.focus();
-    return true;
-  };
-
-  const handleClick = () => {
-    const url = site.url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) return;
-
-    const opened = openInNewTabAndKeepCurrent(url);
-    if (!opened) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-
+  const handleCardClick = () => {
+    // 点击统计不应阻塞外链打开，因此这里保持异步上报并静默兜底。
     void sitesAPI.incrementClick(site.id).catch(() => undefined);
   };
 
-  return (
-    <div className="card group relative cursor-pointer" onClick={handleClick}>
+  const cardContent = (
+    <>
       <div className="pointer-events-none absolute left-4 right-4 -top-3 z-10 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:-translate-y-0.5 transition-all duration-200">
         <div className="inline-flex max-w-full items-center rounded-md bg-gray-900/95 px-2 py-1 text-xs text-white shadow-lg">
           <ExternalLink className="mr-1 h-3 w-3 flex-shrink-0" />
@@ -100,6 +83,26 @@ export default function SiteCard({ site }: SiteCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
-} 
+
+  if (!isValidExternalUrl) {
+    return (
+      <div className="card group relative cursor-not-allowed" aria-disabled="true">
+        {cardContent}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={site.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="card group relative block cursor-pointer"
+      onClick={handleCardClick}
+    >
+      {cardContent}
+    </a>
+  );
+}

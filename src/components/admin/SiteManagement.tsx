@@ -173,13 +173,16 @@ export default function SiteManagement({ onEdit }: SiteManagementProps) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => window.open(site.url, '_blank')}
+                    <a
+                      href={site.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
                       title="访问网站"
+                      aria-label={`访问 ${site.title}`}
                     >
                       <ExternalLink className="w-4 h-4" />
-                    </button>
+                    </a>
                     <button
                       onClick={() => onEdit(site)}
                       className="text-blue-600 dark:text-purple-400 hover:text-blue-900 dark:hover:text-purple-300 transition-colors duration-200"
